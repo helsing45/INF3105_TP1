@@ -1,183 +1,162 @@
 /*  INF3105 - Structures de données et algorithmes
  *  UQAM / Département d'informatique
- *  Automne 2015 / TP3
+ *  Hiver 2016 / TP3
  *
- *  Vos noms + codes permanents :
+ *  Décary Jean-Christophe (DECJ20119200):
  */
-#include <iostream>
+
 #include <cstdio>
 #include <limits>
 #include <math.h>
 #include <queue>
 #include <sstream>
 #include "carte.h"
-#include <string>
+using namespace std;
 
- using namespace std;
+void Carte::addPlace(const string& name, const Coordonnee& coord){
 
-void Carte::ajouterRoute(const string& nomroute, const list<string>& route){
-    list<string>::const_iterator iter1=route.begin();
-    if(iter1==route.end()) return;
-    list<string>::const_iterator iter2=iter1;
-    ++iter2;
-    while(iter2!=route.end()){
-        lieux[*iter1].voisins[*iter2] = nomroute;
-        lieux[*iter2].voisins[*iter1] = nomroute;
-        iter1 = iter2;
-        ++iter2;
-    }
 }
+void Carte::addStreet(const string& name, const list<string>& names){
+ list<string>::const_iterator streetIterator = names.begin();
+ if(streetIterator == names.end()) return;
+ list<string>::const_iterator cloneStreetIterator = streetIterator;
+ ++cloneStreetIterator;
+ while(cloneStreetIterator != names.end()){
+    places[*streetIterator].neighbours[*cloneStreetIterator] == name ;
+    places[*cloneStreetIterator].neighbours[*streetIterator] == name ;
+    streetIterator = cloneStreetIterator;
 
-void Carte::afficherVoisins(Carte carte){
-
-
-    for (std::map<string, Lieu>::iterator it=carte.lieux.begin(); it != carte.lieux.end(); it++){
-
-        cout << "nom site : " <<  it->first<< " voisins :" << endl;
-
-        for(std::map<string,string>::iterator it2= it->second.voisins.begin(); it2 != it->second.voisins.end(); it2++){
-
-            cout << " " << it2->first  ;
-            cout << " nom de la rue " << it2->second  ;
-            cout << " floux " << carte.infoRue[it2->second] << endl ;
+    ++cloneStreetIterator;
+ }
+}
+void Carte::showNeighbour(Carte carte){
+    for(map<string,Place>::iterator placeIterator = carte.places.begin(); placeIterator != carte.places.end(); placeIterator ++){
+        cout << "nom site : " <<  placeIterator->first<< " voisins :" << endl;
+        for(map<string,string>::iterator neighbourIterator = placeIterator->second.neighbours.begin(); neighbourIterator != placeIterator ->second.neighbours.end(); neighbourIterator++){
+            cout << " " << neighbourIterator->first  ;
+            cout << " nom de la rue " << neighbourIterator->second  ;
+            cout << " floux " << carte.streetInfo[neighbourIterator->second] << endl ;
         }
-        cout << "." << endl;
-
     }
 }
-
-void Carte::incraseKey(map<string,int>& sommetFloux, string sommet, int floux){
-
- sommetFloux[sommet] = floux;
-
+void Carte::increaseKey(map<string,int>& summitFlux, string summit, int flux){
+  summitFlux[summit] = flux;
 }
+string Carte::extractMax(map<string,int>& summitFlux, string previousSite){
+  int min = numeric_limits<int>::min();
+  int currentRange = 0;
+  int selectedRange = 0;
+  string site;
 
-string Carte::extractMax(map<string,int>& sommetFloux, Carte& carte, string sitePrece){
+  for(map<string,int>::iterator fluxIterator = summitFlux.begin(); fluxIterator != summitFlux.end(); fluxIterator++){
+        if(fluxIterator-> second == min){
+            currentRange = sites[previousSite].distance(sites[fluxIterator->first]);
+            selectedRange = sites[previousSite].distance(sites[site]);
 
-    int min = numeric_limits<int>::min();
-    int distanceCourrant = 0;
-    int distanceSelectione = 0;
-    string site;
-    for (std::map<string, int>::iterator it=sommetFloux.begin(); it != sommetFloux.end(); it++)
-    {
-        if (it->second == min){
-            distanceCourrant = sites[sitePrece].distance(sites[it->first]);
-            distanceSelectione = sites[sitePrece].distance(sites[site]);
-            if (distanceCourrant > distanceSelectione){
+            if(currentRange > selectedRange){
                 continue;
             }
-
         }
-        if(it->second >= min){
-            site = it->first;
-            min = it->second;
+        if(fluxIterator->second >= min){
+            site = fluxIterator->first;
+            min = fluxIterator->second;
         }
-    }
-    sommetFloux.erase (site);
-    return site;
-}
-
-void Carte::prim(Carte& carte){
-
-    list<string> resultat;
-    map<string,int> sommetFloux;
-    map< string,map<string,string> > sommetSuivant;
-    string sitePrece;
-    int somme = 0;
-    int min = numeric_limits<int>::min();
-    for (std::map<string, Coordonnee>::iterator it=carte.sites.begin(); it != carte.sites.end(); it++)
-    {
-        sommetFloux[it->first] = min;
-    }
-
-    carte.incraseKey(sommetFloux,sommetFloux.begin()->first, 0);
-
-    while (!sommetFloux.empty()){
-
-        string site = extractMax(sommetFloux,carte,sitePrece);
-        sitePrece = site;
-        resultat.push_back(site);
-
-        for (std::map<string, string>::iterator it=carte.lieux[site].voisins.begin(); it != carte.lieux[site].voisins.end(); it++)
-        {
-
-            if ( (sommetFloux.count(it->first) != 0) && (carte.infoRue[it->second] > sommetFloux[it->first]) )
-            {
-
-                map <string,string>  tmp;
-                tmp[site] = it->first ;
-                sommetSuivant[it->first] =  tmp;
-                incraseKey(sommetFloux,it->first, carte.infoRue[it->second]);
-
-            }
-        }
-    }
-    list<string>::iterator it =resultat.begin();
-    ++it;
-    for (; it!=resultat.end(); ++it)
-    {
-        cout <<  sommetSuivant[*it].begin()->first << " "<< sommetSuivant[*it].begin()->second << endl;
-        cout <<  carte.lieux[sommetSuivant[*it].begin()->first].voisins[sommetSuivant[*it].begin()->second] << endl;
-        cout <<  carte.infoRue[carte.lieux[sommetSuivant[*it].begin()->first].voisins[sommetSuivant[*it].begin()->second]] << endl;
-        somme += carte.infoRue[carte.lieux[sommetSuivant[*it].begin()->first].voisins[sommetSuivant[*it].begin()->second]];
-    }
-    cout <<  "---" << endl;
-    cout <<  somme << endl;
-
-
-}
-
-
-
-istream& operator >> (istream& is, Carte& carte)
-{
-
-    string nomSite;
-    Coordonnee coor;
-    string nomRue;
-    int floux;
-    char doublePoint;
-
-
-    is >> nomSite;
-    while(nomSite != "---"){
-      //cout << nomSite << endl;
-      is >> coor ;
-     // cout << coor << endl;
-      carte.sites[nomSite] = coor;
-      is >> nomSite;
   }
+  summitFlux.erase(site);
+  return site;
+}
+void Carte::print(){
+ list<string> results;
+ map<string,int> summitFlux;
+ map<string, map<string,string> > nextSummit;
+ string previousSite;
+ int sum = 0;
+ int min = numeric_limits<int>::min();
 
 
-  while(is >> nomRue){
-    list<string> listeSites;
-    string nomSite;
-
-    //cout << nomRue << endl;
-    is >> doublePoint;
-    assert(doublePoint == ':');
-    is >> nomSite;
-    while(nomSite != ";" ){
-     //cout << nomSite << endl;
-     listeSites.push_back(nomSite);
-     is >> nomSite;
+ for(map<string,Coordonnee>::iterator siteIterator = sites.begin(); siteIterator != sites.end(); siteIterator++){
+    summitFlux[siteIterator->first]= min;
  }
 
- list<string>::iterator iter = listeSites.end();
+ increaseKey(summitFlux,summitFlux.begin()->first,0);
 
- string dernierElement = *(--iter);
- std::istringstream iss(dernierElement);
- listeSites.remove(dernierElement);
- iss >> floux;
+ while(!summitFlux.empty()){
+    string site = extractMax(summitFlux,previousSite);
+    previousSite = site;
+    results.push_back(site);
+    for(map<string,string>::iterator neighbourIterator = places[site].neighbours.begin(); neighbourIterator != places[site].neighbours.end(); neighbourIterator++){
+        if((summitFlux.count(neighbourIterator->first) != 0) && (streetInfo[neighbourIterator ->second]> summitFlux[neighbourIterator-> first])){
+            map<string,string> temporary;
+            temporary[site] = neighbourIterator->first;
+            nextSummit[neighbourIterator->first] = temporary;
+            increaseKey(summitFlux, neighbourIterator->first, streetInfo[neighbourIterator->second]);
+        }
+    }
+ }
+ list<string>::iterator resultIterator = results.begin();
+ ++resultIterator;
 
- carte.infoRue[nomRue] = floux;
- carte.ajouterRoute(nomRue, listeSites);
+ for(; resultIterator != results.end(); ++resultIterator){
+    cout <<  nextSummit[*resultIterator].begin()->first << " "<< nextSummit[*resultIterator].begin()->second << endl;
+    cout <<  places[nextSummit[*resultIterator].begin()->first].neighbours[nextSummit[*resultIterator].begin()->second] << endl;
+    cout <<  streetInfo[places[nextSummit[*resultIterator].begin()->first].neighbours[nextSummit[*resultIterator].begin()->second]] << endl;
+    sum += streetInfo[places[nextSummit[*resultIterator].begin()->first].neighbours[nextSummit[*resultIterator].begin()->second]];
+    }
+    cout <<  "---" << endl;
+    cout <<  sum << endl;
+
 
 }
 
-//carte.afficherVoisins(carte);
-carte.prim(carte);
 
-return is;
+
+
+istream& operator >> (istream& is, Carte& carte){
+    char separator;
+    string name;
+    Coordonnee coord;
+    string streetName;
+    int peopleFlux;
+    char doublePoint;
+
+    /*---------------------  LECTURE DES NOEUDS  --------------------*/
+    is >> name;
+    while(name != "---"){
+    //lecture de la coordonnée
+    is >>coord;
+    // lecuture du point virgules
+    is >> separator;
+    carte.sites[name] = coord;
+
+    is >> name;
+    }
+
+    /*-----------------------  LECTURE DES RUES  --------------------*/
+
+    while(is >> streetName){
+     list<string> siteList;
+     string siteName;
+
+     // Lecture du separateur ':'
+     is >> doublePoint;
+     // Lecture des sites
+     is >> siteName;
+     while(siteName != ";"){
+        // ajout du nom du site dans la liste des sites
+        siteList.push_back(siteName);
+        is >> siteName;
+     }
+     list<string>::iterator siteIterator = siteList.end();
+
+     //on veut aller chercher le flux de personne du segment
+     string lastElement = *(--siteIterator);
+     std::istringstream iss(lastElement);
+     siteList.remove(lastElement);
+     iss >> peopleFlux;
+
+     carte.streetInfo[streetName] = peopleFlux;
+     carte.addStreet(streetName,siteList);
+    }
+    return is;
 }
 

@@ -14,12 +14,12 @@
 using namespace std;
 
 void tp3(Carte& carte){
-
+    carte.print();
 }
 
 int main(int argc, const char** argv)
 {
-  
+
     if(argc!=2){
         cout << "Syntaxe: ./tp3 carte.txt" << endl;
         return 1;
@@ -29,7 +29,7 @@ int main(int argc, const char** argv)
     {
         ifstream fichiercarte(argv[1]);
         if(fichiercarte.fail()){
-            cout << "Erreur ouverture du fichier : " << argv[1] << endl;    
+            cout << "Erreur ouverture du fichier : " << argv[1] << endl;
             return 1;
         }
         fichiercarte >> carte;

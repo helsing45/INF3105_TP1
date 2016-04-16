@@ -1,10 +1,10 @@
 /*  INF3105 - Structures de données et algorithmes
  *  UQAM / Département d'informatique
- *  Automne 2015/ TP3
+ *  Hiver 2016/ TP3
  *
  *  Vos noms + codes permanents :
  */
- 
+
 #if !defined(_CARTE__H_)
 #define _CARTE__H_
 #include "coordonnee.h"
@@ -12,35 +12,33 @@
 #include <istream>
 #include <list>
 #include <map>
- #include <set>
 #include <string>
 #include <vector>
 
- using namespace std;
+using namespace std;
 
- class Carte{
- public:
- 	void ajouterLieu(const string& nom, const Coordonnee& c);
- 	void ajouterRoute(const string& nom, const list<string>& noms);
- 	void afficherVoisins(Carte cart);
- 	void incraseKey(map<string,int>& sommetFloux, string sommet, int floux);
- 	string extractMax(map<string,int>& sommetFloux,Carte& carte,string sitePrece);
- 	void prim(Carte& carte);
+class Carte{
+  public:
+    void addPlace(const string& name, const Coordonnee& coord);
+    void addStreet(const string& name, const list<string>& names);
+    void showNeighbour(Carte carte);
+    void increaseKey(map<string,int>& summitFlux, string summit, int flux);
+    string extractMax(map<string,int>& summitFlux, string previousSite);
+    void print();
+
  	map<string, Coordonnee> sites;
- 	map<string, int> infoRue; 
+ 	map<string, int> streetInfo;
 
- private:
- 	struct Lieu{
-        Coordonnee coor;     
-        map<string,string> voisins; // <site rue>
-
+  private:
+    struct Place{
+        Coordonnee coord;
+        map<string,string> neighbours;
     };
-    
-    map<string, Lieu> lieux;
+
+    map<string,Place> places;
 
 
-    
-    friend istream& operator >> (istream& is, Carte& carte);
+  friend istream& operator >> (istream& is, Carte& carte);
 };
 
 #endif
